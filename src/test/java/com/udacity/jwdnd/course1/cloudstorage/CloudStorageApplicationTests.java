@@ -236,10 +236,10 @@ class CloudStorageApplicationTests {
     }
 
     /**
-     * Verify that login user can create, view, edit, delete a note.
+     * Verify that login user can create a note.
      */
     @Test
-    public void testNoteFeatures() {
+    public void testCreateNote() {
         driver.get("http://localhost:" + this.port + "/signup");
         SignupPage signupPage = new SignupPage(driver);
         signupPage.signup("Thanh", "Nguyen", "thanhnt", "1234567890");
@@ -259,16 +259,49 @@ class CloudStorageApplicationTests {
         String actualDescription = driver.findElements(By.className("note-description")).get(0).getText();
 		Assertions.assertEquals("New title", actualTitle);
 		Assertions.assertEquals("New description", actualDescription);
+    }
+
+    /**
+     * Verify that login user can update an exist note.
+     */
+    @Test
+    public void testUpdateNote() {
+        driver.get("http://localhost:" + this.port + "/login");
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("hungct", "123");
+
+        HomePage homePage = new HomePage(driver);
+        NoteTab noteTab = homePage.getNoteTab();
+        noteTab.openNoteTab();
+
+        WebDriverWait webDriverWait = new WebDriverWait(driver, 5);
 
         WebElement editNoteButton = driver.findElements(By.className("btn-edit-note")).get(0);
+        webDriverWait.until(ExpectedConditions.visibilityOf(editNoteButton));
         editNoteButton.click();
         noteTab.updateNote("Update new title", "Update new description");
         webDriverWait.until(ExpectedConditions.visibilityOf(driver.findElements(By.className("note-title")).get(0)));
         String newActualTitle = driver.findElements(By.className("note-title")).get(0).getText();
         webDriverWait.until(ExpectedConditions.visibilityOf(driver.findElements(By.className("note-description")).get(0)));
         String newActualDescription = driver.findElements(By.className("note-description")).get(0).getText();
-		Assertions.assertEquals("Update new title", newActualTitle);
-		Assertions.assertEquals("Update new description", newActualDescription);
+        Assertions.assertEquals("Update new title", newActualTitle);
+        Assertions.assertEquals("Update new description", newActualDescription);
+    }
+
+    /**
+     * Verify that login user can delete an exist note
+     */
+    @Test
+    public void testDeleteNote() {
+        driver.get("http://localhost:" + this.port + "/login");
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("hungct", "123");
+
+        HomePage homePage = new HomePage(driver);
+        NoteTab noteTab = homePage.getNoteTab();
+        noteTab.openNoteTab();
+
+        WebDriverWait webDriverWait = new WebDriverWait(driver, 5);
 
         noteTab.deleteNote(0);
         WebElement deleteNoteNotification = driver.findElements(By.className("delete-note-notification")).get(0);
@@ -276,8 +309,10 @@ class CloudStorageApplicationTests {
         Assertions.assertEquals(deleteNoteNotification.getText(), "Delete note successfully!");
     }
 
+
+
     /**
-     * Verify that login user can create, view, update, delete credential.
+     * Verify that login user can create credential.
      */
     @Test
     public void testCredentialFeatures() {
@@ -297,13 +332,60 @@ class CloudStorageApplicationTests {
         Assertions.assertEquals(credential.getUrl(), "https://facebook.com");
         Assertions.assertEquals(credential.getUsername(), "facebook_account");
         Assertions.assertNotEquals(credential.getPassword(), "facebook_password");
+    }
+
+    /**
+     * Verify that login user can view credential details.
+     */
+    @Test
+    public void viewCredential() {
+        driver.get("http://localhost:" + this.port + "/login");
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("hungct", "123");
+
+        HomePage homePage = new HomePage(driver);
+        CredentialTab credentialTab = homePage.getCredentialTab();
+        credentialTab.openCredentialsTab();
 
         credentialTab.viewCredential(0);
         credentialTab.getWebDriverWait().until(ExpectedConditions.visibilityOf(credentialTab.getPasswordUpdateField()));
         String actualPassword = credentialTab.getPasswordUpdateField().getAttribute("value");
-        Assertions.assertEquals("facebook_password", actualPassword);
+        Assertions.assertEquals("123456", actualPassword);
+    }
 
-        credentialTab.closeUpdateModel();
+    /**
+     * Verify that login user can update an exist credential.
+     */
+    @Test
+    public void updateCredential() {
+        driver.get("http://localhost:" + this.port + "/login");
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("hungct", "123");
+
+        HomePage homePage = new HomePage(driver);
+        CredentialTab credentialTab = homePage.getCredentialTab();
+        credentialTab.openCredentialsTab();
+
+        credentialTab.updateCredential(0, "https://new-url.com", "new-username", "new-password");
+        Credential credential = credentialTab.getCredential(0);
+        Assertions.assertEquals("https://new-url.com", credential.getUrl());
+        Assertions.assertEquals("new-username", credential.getUsername());
+        Assertions.assertNotEquals("new-password", credential.getPassword());
+    }
+
+    /**
+     * Verify that login user can delete an exist credential.
+     */
+    @Test
+    public void deleteCredential() {
+        driver.get("http://localhost:" + this.port + "/login");
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("hungct", "123");
+
+        HomePage homePage = new HomePage(driver);
+        CredentialTab credentialTab = homePage.getCredentialTab();
+        credentialTab.openCredentialsTab();
+
         credentialTab.deleteCredential(0);
         WebElement deleteCredentialMessage = driver.findElements(By.className("delete-credential-message")).get(0);
         credentialTab.getWebDriverWait().until(ExpectedConditions.visibilityOf(deleteCredentialMessage));

@@ -109,6 +109,7 @@ public class CredentialTab {
 
     public void viewCredential(Integer index) {
         WebElement updateCredentialButton = webDriver.findElements(By.className("btn-edit-credential")).get(index);
+        webDriverWait.until(ExpectedConditions.visibilityOf(updateCredentialButton));
         updateCredentialButton.click();
     }
 
@@ -116,10 +117,13 @@ public class CredentialTab {
         viewCredential(index);
         webDriverWait.until(ExpectedConditions.visibilityOf(urlUpdateField));
         urlUpdateField.click();
+        urlUpdateField.clear();
         urlUpdateField.sendKeys(url);
         usernameUpdateField.click();
+        usernameUpdateField.clear();
         usernameUpdateField.sendKeys(username);
         passwordUpdateField.click();
+        passwordUpdateField.clear();
         passwordUpdateField.sendKeys(password);
         updateCredentialSubmitButton.click();
     }
